@@ -6,6 +6,8 @@ import db from "@/db/index";
 import { articles } from "@/db/schema";
 import { stackServerApp } from "@/stack/server";
 import { ensureUserSynced } from "@/lib/user-sync";
+import { authorizedUserToEditArticles } from "@/db/authz";
+import { use } from "react";
 
 // Server actions for articles (stubs)
 // TODO: Replace with real database operations when ready
@@ -57,7 +59,9 @@ export async function updateArticle(id: string, data: UpdateArticleInput) {
   if (!user) {
     throw new Error("❌ Unauthorized");
   }
-
+  if (!(await authorizedUserToEditArticles(user.id, +id))) {
+    throw new Error("Forbidden");
+  }
   // Ensure user is synced to Neon
   await ensureUserSynced();
 
@@ -98,7 +102,9 @@ export async function deleteArticle(id: string) {
 
   // Ensure user is synced to Neon
   await ensureUserSynced();
-
+  if (!(await authorizedUserToEditArticles(user.id, +id))) {
+    throw new Error("Forbidden");
+  }
   console.log("🗑️ deleteArticle called:", id);
 
   const _response = await db.delete(articles).where(eq(articles.id, +id));
