@@ -2,7 +2,7 @@
 
 import { stackServerApp } from "@/stack/server";
 import { ensureUserSynced } from "@/lib/user-sync";
-
+import { put } from "@vercel/blob";
 // Server action to handle uploads (stub)
 // TODO: Replace placeholder logic with real Cloudinary (or other) upload
 
@@ -18,7 +18,7 @@ export async function uploadFile(formData: FormData): Promise<UploadedFile> {
   if (!user) {
     throw new Error("❌ Unauthorized");
   }
-  
+
   // Ensure user is synced to Neon
   await ensureUserSynced();
 
@@ -45,15 +45,19 @@ export async function uploadFile(formData: FormData): Promise<UploadedFile> {
   if (file.size > MAX_FILE_SIZE) {
     throw new Error("File too large");
   }
-
-  // TODO: Insert Cloudinary upload code here.
-  // Example: upload using Cloudinary SDK on the server and return secure_url
-
-  // Return mock file info for now
-  return {
-    url: "/uploads/mock-image.jpg",
-    size: file.size,
-    type: file.type,
-    filename: file.name,
-  };
+  try {
+    const blob = await put(file.name, file, {
+      access: "public",
+      addRandomSuffix: true,
+    });
+    return {
+      url: blob.url,
+      size: file.size,
+      type: file.type,
+      filename: blob.pathname ?? file.name,
+    };
+  } catch (e) {
+    console.error("vercel file uplaod error", e);
+    throw new Error("Upload Failed");
+  }
 }

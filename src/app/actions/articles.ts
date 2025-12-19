@@ -7,7 +7,6 @@ import { articles } from "@/db/schema";
 import { stackServerApp } from "@/stack/server";
 import { ensureUserSynced } from "@/lib/user-sync";
 import { authorizedUserToEditArticles } from "@/db/authz";
-import { use } from "react";
 
 // Server actions for articles (stubs)
 // TODO: Replace with real database operations when ready
@@ -44,7 +43,7 @@ export async function createArticle(data: CreateArticleInput) {
       title: data.title,
       content: data.content,
       slug: `${Date.now()}`,
-      imageUrl: data.imageUrl || null,
+      imageUrl: data.imageUrl || undefined,
       published: true,
       authorId: userId,
     })
@@ -70,7 +69,7 @@ export async function updateArticle(id: string, data: UpdateArticleInput) {
   const updateData: {
     title?: string;
     content?: string;
-    imageUrl?: string | null;
+    imageUrl?: string | undefined;
     updatedAt?: string;
   } = {
     updatedAt: new Date().toISOString(),
@@ -83,7 +82,7 @@ export async function updateArticle(id: string, data: UpdateArticleInput) {
     updateData.content = data.content;
   }
   if (data.imageUrl !== undefined) {
-    updateData.imageUrl = data.imageUrl || null;
+    updateData.imageUrl = data.imageUrl;
   }
 
   const _response = await db

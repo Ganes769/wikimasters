@@ -15,6 +15,7 @@ interface ViewerArticle {
   id: number;
   content: string;
   createdAt: string;
+  updatedAt: string;
   imageUrl?: string | null;
 }
 
@@ -105,20 +106,30 @@ export default function WikiArticleViewer({
       {/* Article Content */}
       <Card>
         <CardContent className="pt-6">
-          {/* Article Image - Display if exists */}
-          {article.imageUrl && (
-            <div className="mb-8">
-              <div className="relative w-full h-64 md:h-80 rounded-lg overflow-hidden">
-                <Image
-                  src={article.imageUrl}
-                  alt={`Image for ${article.title}`}
-                  fill
-                  className="object-cover"
-                  priority
-                />
+          {/* Article Image - Display if exists and is a valid remote URL */}
+          {article.imageUrl &&
+            (article.imageUrl.startsWith("http://") ||
+              article.imageUrl.startsWith("https://")) && (
+              <div className="mb-8">
+                <div className="relative w-full h-64 md:h-80 rounded-lg overflow-hidden">
+                  <Image
+                    src={`${article.imageUrl}?t=${new Date(article.updatedAt).getTime()}`}
+                    alt={`Image for ${article.title}`}
+                    fill
+                    className="object-cover"
+                    priority
+                    onError={(e) => {
+                      // Hide image container on error
+                      const target = e.target as HTMLImageElement;
+                      const container = target.closest(".mb-8");
+                      if (container) {
+                        (container as HTMLElement).style.display = "none";
+                      }
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Rendered Markdown Content */}
           <div className="prose prose-stone dark:prose-invert max-w-none">

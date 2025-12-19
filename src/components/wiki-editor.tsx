@@ -15,6 +15,7 @@ import { uploadFile } from "@/app/actions/upload";
 interface WikiEditorProps {
   initialTitle?: string;
   initialContent?: string;
+  initialImageUrl?: string;
   isEditing?: boolean;
   articleId?: string;
 }
@@ -27,6 +28,7 @@ interface FormErrors {
 export default function WikiEditor({
   initialTitle = "",
   initialContent = "",
+  initialImageUrl,
   isEditing = false,
   articleId,
 }: WikiEditorProps) {
@@ -99,10 +101,13 @@ export default function WikiEditor({
 
       if (isEditing && articleId) {
         // Update existing article
+        // If no new image uploaded, preserve the existing imageUrl
+        const finalImageUrl =
+          imageUrl !== undefined ? imageUrl : initialImageUrl;
         const result = await updateArticle(articleId, {
           title: title.trim(),
           content: content.trim(),
-          imageUrl,
+          imageUrl: finalImageUrl,
         });
 
         if (result.success) {

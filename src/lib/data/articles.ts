@@ -25,6 +25,7 @@ export async function getArticleById(id: number) {
       title: articles.title,
       id: articles.id,
       createdAt: articles.createdAt,
+      updatedAt: articles.updatedAt,
       content: articles.content,
       author: usersSync.name,
       imageUrl: articles.imageUrl,

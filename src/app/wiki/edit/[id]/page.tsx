@@ -34,6 +34,7 @@ export default async function EditArticlePage({
     <WikiEditor
       initialTitle={article.title}
       initialContent={article.content}
+      initialImageUrl={article.imageUrl || undefined}
       isEditing={true}
       articleId={id}
     />
